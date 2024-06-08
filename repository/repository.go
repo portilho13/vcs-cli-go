@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 var repoFolders = []string{
@@ -35,4 +36,10 @@ func CreateRepoFolders() (error){
 		}
 	}
 	return nil
+}
+
+func RepoExists(path string) bool {
+    repoPath := filepath.Join(path, ".vcs")
+    _, err := os.Stat(repoPath)
+    return !os.IsNotExist(err)
 }

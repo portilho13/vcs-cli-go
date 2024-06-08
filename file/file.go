@@ -10,6 +10,7 @@ import (
 	"github.com/portilho13/vcs-cli-go/repository"
 )
 
+// ConvertToBin reads the file at filePath and converts its content to a binary string representation.
 func ConvertToBin(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -23,13 +24,13 @@ func ConvertToBin(filePath string) (string, error) {
 	}
 
 	var result string
-    for _, c := range content {
-        result += fmt.Sprintf("%08b ", c)
-    }
-    return result, nil
-
+	for _, c := range content {
+		result += fmt.Sprintf("%08b ", c)
+	}
+	return result, nil
 }
 
+// GenerateHash256 creates a SHA-256 hash of the provided content.
 func GenerateHash256(content string) (string, error) {
 	h := sha256.New()
 	_, err := h.Write([]byte(content))
@@ -40,6 +41,8 @@ func GenerateHash256(content string) (string, error) {
 	return fmt.Sprintf("%x", bs), nil
 }
 
+// GenerateHashedFile generates a binary representation of the file at filePath,
+// hashes the content, and stores it in the repository's .vcs/objects directory.
 func GenerateHashedFile(filePath string, repo repository.Repository) (string, error) {
 	content, err := ConvertToBin(filePath)
 	if err != nil {
@@ -50,13 +53,13 @@ func GenerateHashedFile(filePath string, repo repository.Repository) (string, er
 		return "", err
 	}
 
-	genFilePath := repo.LocalPath + "/.vcs/objects/" + hash
+	genFilePath := filepath.Join(repo.LocalPath, ".vcs", "objects", hash)
 
 	dir := filepath.Dir(genFilePath)
-    if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
-    }
-	
+	}
+
 	file, err := os.OpenFile(genFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return "", err
