@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/portilho13/vcs-cli-go/args"
+	"github.com/portilho13/vcs-cli-go/file"
 	"github.com/portilho13/vcs-cli-go/helpers"
 	"github.com/portilho13/vcs-cli-go/repository"
 )
@@ -30,11 +31,17 @@ func main() {
 			}
 
 			repo = repo.Init(repoName, path, "test", "master")
-			fmt.Println(repo)
 			err = repository.CreateRepoFolders()
 			if err != nil {
 				fmt.Println("Error: ", err)
 				return
 			}
+
+			content, err := file.GenerateHashedFile("/Users/marioportilho/Desktop/Coding/vcs-cli-go/teste/teste.c", repo)
+			if err != nil {
+				fmt.Println("Error: ", err)
+				return
+			}
+			fmt.Println(content)
 	}
 }
