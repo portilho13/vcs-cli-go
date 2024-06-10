@@ -2,8 +2,8 @@ package tree
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/portilho13/vcs-cli-go/file"
@@ -36,11 +36,11 @@ func (dt *DirectoryTree) Insert(name string, subtree DirectoryTree, path string)
 	}
 }
 
-func CreateDirectoryTree(path string, repo *repository.Repository) (DirectoryTree, error) {
+func CreateDirectoryTree(path string, repo *repository.Repository) (*DirectoryTree, error) {
 	tree := NewDirectoryTree()
-	entries, err := ioutil.ReadDir(path)
+	entries, err := os.ReadDir(path)
 	if err != nil {
-		return tree, err
+		return nil, err
 	}
 
 	for _, entry := range entries {
@@ -54,9 +54,9 @@ func CreateDirectoryTree(path string, repo *repository.Repository) (DirectoryTre
 		if entry.IsDir() {
 			subtree, err := CreateDirectoryTree(fullPath, repo)
 			if err != nil {
-				return tree, err
+				return nil, err
 			}
-			tree.Insert(name, subtree, fullPath)
+			tree.Insert(name, *subtree, fullPath)
 		} else {
 			fileBlobHash, err := file.GenerateHashedFile(fullPath, *repo)
 			if err != nil {
@@ -66,17 +66,17 @@ func CreateDirectoryTree(path string, repo *repository.Repository) (DirectoryTre
 			tree.Insert(name, DirectoryTree{File: &fileBlobHash}, fullPath)
 		}
 	}
-	return tree, nil
+	return &tree, nil
 }
 
-func PrintDirectoryTree(tree DirectoryTree, level int) {
+func PrintDirectoryTree(tree *DirectoryTree, level int) {
 	for name, subtree := range tree.Directory {
 		for i := 0; i < level; i++ {
 			fmt.Print("  ")
 		}
 		fmt.Println(name)
 		fmt.Println("  Path:", subtree.Path)
-		PrintDirectoryTree(subtree.Tree, level+1)
+		PrintDirectoryTree(&subtree.Tree, level+1)
 	}
 
 	if tree.File != nil {

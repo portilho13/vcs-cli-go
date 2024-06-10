@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/portilho13/vcs-cli-go/args"
 	"github.com/portilho13/vcs-cli-go/helpers"
@@ -13,6 +14,8 @@ type Repository = repository.Repository // type alias for repository.Repository 
 
 
 var repo *Repository
+var dirTree *tree.DirectoryTree
+var comment *string
 
 func main() {
 	commandArgs := args.GetArgs()
@@ -64,13 +67,20 @@ func main() {
 				return
 			}
 			if repository.RepoExists(localPath) {
-				dtree, err := tree.CreateDirectoryTree(path, repo)
+				dirTree, err = tree.CreateDirectoryTree(path, repo)
 				if err != nil {
 					fmt.Println("Error: ", err)
 					return
 				}
 
-				tree.PrintDirectoryTree(dtree, 0)
+				tree.PrintDirectoryTree(dirTree, 0)
+			}
+		case "comment":
+			if commandArgs[1] == "-m" {
+				trimmed := strings.TrimSpace(commandArgs[2])
+				comment = &trimmed
+				fmt.Println("Comment: ", *comment)
+
 			}
 	}
 }
