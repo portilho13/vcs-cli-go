@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/portilho13/vcs-cli-go/args"
-	"github.com/portilho13/vcs-cli-go/file"
 	"github.com/portilho13/vcs-cli-go/helpers"
 	"github.com/portilho13/vcs-cli-go/repository"
 	"github.com/portilho13/vcs-cli-go/tree"
@@ -13,16 +12,26 @@ import (
 type Repository = repository.Repository // type alias for repository.Repository type
 
 
-var repo Repository
+var repo *Repository
 
 func main() {
-	fmt.Println("Hello, World!")
 	commandArgs := args.GetArgs()
+	path, err := helpers.GetLocalPath()
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return
+	}
+	if repository.CheckRepository(path) {
+		repo, err = repository.LoadRepository(path)
+		if err != nil {
+			fmt.Println("Error: ", err)
+			return
+		}
+	}
 	switch commandArgs[0] {
 		case "init": 
-			path, err := helpers.GetLocalPath()
-			if err != nil {
-				fmt.Println("Error: ", err)
+			if repository.CheckRepository(path) {
+				fmt.Println("Repository already exists")
 				return
 			}
 			repoName, err := helpers.GetPathName()
@@ -38,12 +47,15 @@ func main() {
 				return
 			}
 
-			content, err := file.GenerateHashedFile("/Users/marioportilho/Desktop/Coding/vcs-cli-go/teste/teste.c", repo)
-			if err != nil {
-				fmt.Println("Error: ", err)
-				return
+			if !repository.CheckRepository(path) {
+				err = repository.SaveRepository(*repo)
+				if err != nil {
+					fmt.Println("Error: ", err)
+					return
+				}
 			}
-			fmt.Println(content)
+			fmt.Println(repo)
+
 		case "add":
 			path := commandArgs[1]
 			localPath, err := helpers.GetLocalPath()

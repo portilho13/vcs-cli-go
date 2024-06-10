@@ -36,7 +36,7 @@ func (dt *DirectoryTree) Insert(name string, subtree DirectoryTree, path string)
 	}
 }
 
-func CreateDirectoryTree(path string, repo repository.Repository) (DirectoryTree, error) {
+func CreateDirectoryTree(path string, repo *repository.Repository) (DirectoryTree, error) {
 	tree := NewDirectoryTree()
 	entries, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -58,7 +58,7 @@ func CreateDirectoryTree(path string, repo repository.Repository) (DirectoryTree
 			}
 			tree.Insert(name, subtree, fullPath)
 		} else {
-			fileBlobHash, err := file.GenerateHashedFile(fullPath, repo)
+			fileBlobHash, err := file.GenerateHashedFile(fullPath, *repo)
 			if err != nil {
 				log.Printf("Error generating file blob hash for %s: %v", fullPath, err)
 				continue
