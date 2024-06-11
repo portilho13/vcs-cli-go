@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/portilho13/vcs-cli-go/args"
+	"github.com/portilho13/vcs-cli-go/cloud"
 	"github.com/portilho13/vcs-cli-go/helpers"
 	"github.com/portilho13/vcs-cli-go/repository"
 	"github.com/portilho13/vcs-cli-go/tree"
@@ -81,6 +83,19 @@ func main() {
 				comment = &trimmed
 				fmt.Println("Comment: ", *comment)
 
+			}
+		case "clone":
+			link := commandArgs[1]
+			localPath, err := helpers.GetLocalPath()
+			path = filepath.Join(localPath, "test.txt")
+			if err != nil {
+				fmt.Println("Error: ", err)
+				return
+			}
+			err = cloud.Clone(path, link)
+			if err != nil {
+				fmt.Println("Error: ", err)
+				return
 			}
 	}
 }
