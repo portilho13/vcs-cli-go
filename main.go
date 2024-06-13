@@ -16,7 +16,6 @@ type Repository = repository.Repository // type alias for repository.Repository 
 
 var repo *Repository
 var comment *string
-var currentBranch repository.Branch
 
 func main() {
 	commandArgs := args.GetArgs()
@@ -75,10 +74,23 @@ func main() {
 						fmt.Println("Error: ", err)
 						return
 					}
+				} else {
+					fmt.Println("Updating directory tree")
+					dirTree, err = repository.UpdateDirectoryTree(path, repo, repo.Branch.DirTree)
+					if err != nil {
+						fmt.Println("Error: ", err)
+						return
+					}
 				}
 
 				repo.Branch.DirTree = dirTree
 				repository.PrintDirectoryTree(repo.Branch.DirTree, 0)
+
+				err = repository.SaveRepository(*repo)
+				if err != nil {
+					fmt.Println("Error: ", err)
+					return
+				}
 			}
 		case "comment":
 			if commandArgs[1] == "-m" {

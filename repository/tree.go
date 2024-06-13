@@ -35,6 +35,23 @@ func (dt *DirectoryTree) Insert(name string, subtree DirectoryTree, path string)
 
 func CreateDirectoryTree(path string, repo *Repository) (*DirectoryTree, error) {
 	tree := NewDirectoryTree()
+
+	info, err := os.Stat(path)
+    if err != nil {
+        return nil, err
+    }
+
+    if !info.IsDir() {
+        // The path is a file, process it directly
+        fileBlobHash, err := GenerateHashedFile(path, *repo)
+        if err != nil {
+            log.Printf("Error generating file blob hash for %s: %v", path, err)
+            return nil, err
+        }
+        tree.Insert(info.Name(), DirectoryTree{File: &fileBlobHash}, path)
+        return &tree, nil
+    }
+
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -64,6 +81,54 @@ func CreateDirectoryTree(path string, repo *Repository) (*DirectoryTree, error) 
 		}
 	}
 	return &tree, nil
+}
+
+func UpdateDirectoryTree(path string, repo *Repository, tree *DirectoryTree) (*DirectoryTree, error) {
+	info, err := os.Stat(path)
+    if err != nil {
+        return nil, err
+    }
+
+    if !info.IsDir() {
+        // The path is a file, process it directly
+        fileBlobHash, err := GenerateHashedFile(path, *repo)
+        if err != nil {
+            log.Printf("Error generating file blob hash for %s: %v", path, err)
+            return nil, err
+        }
+        tree.Insert(info.Name(), DirectoryTree{File: &fileBlobHash}, path)
+        return tree, nil
+    }
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		name := entry.Name()
+		fullPath := filepath.Join(path, name)
+
+		if toIgnore(name) {
+			continue
+		}
+
+		if entry.IsDir() {
+			subtree, err := CreateDirectoryTree(fullPath, repo)
+			if err != nil {
+				return nil, err
+			}
+			tree.Insert(name, *subtree, fullPath)
+		} else {
+			fileBlobHash, err := GenerateHashedFile(fullPath, *repo)
+			if err != nil {
+				log.Printf("Error generating file blob hash for %s: %v", fullPath, err)
+				continue
+			}
+			tree.Insert(name, DirectoryTree{File: &fileBlobHash}, fullPath)
+		}
+	}
+	return tree, nil
 }
 
 func PrintDirectoryTree(tree *DirectoryTree, level int) {
