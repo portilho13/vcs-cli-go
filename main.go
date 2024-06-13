@@ -9,15 +9,14 @@ import (
 	"github.com/portilho13/vcs-cli-go/cloud"
 	"github.com/portilho13/vcs-cli-go/helpers"
 	"github.com/portilho13/vcs-cli-go/repository"
-	"github.com/portilho13/vcs-cli-go/tree"
 )
 
 type Repository = repository.Repository // type alias for repository.Repository type
 
 
 var repo *Repository
-var dirTree *tree.DirectoryTree
 var comment *string
+var currentBranch repository.Branch
 
 func main() {
 	commandArgs := args.GetArgs()
@@ -69,13 +68,17 @@ func main() {
 				return
 			}
 			if repository.RepoExists(localPath) {
-				dirTree, err = tree.CreateDirectoryTree(path, repo)
-				if err != nil {
-					fmt.Println("Error: ", err)
-					return
+				var dirTree *repository.DirectoryTree
+				if repo.Branch.DirTree == nil {
+					dirTree, err = repository.CreateDirectoryTree(path, repo)
+					if err != nil {
+						fmt.Println("Error: ", err)
+						return
+					}
 				}
 
-				tree.PrintDirectoryTree(dirTree, 0)
+				repo.Branch.DirTree = dirTree
+				repository.PrintDirectoryTree(repo.Branch.DirTree, 0)
 			}
 		case "comment":
 			if commandArgs[1] == "-m" {

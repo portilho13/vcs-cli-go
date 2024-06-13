@@ -1,13 +1,10 @@
-package tree
+package repository
 
 import (
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/portilho13/vcs-cli-go/file"
-	"github.com/portilho13/vcs-cli-go/repository"
 )
 
 var FOLDERS_TO_IGNORE = []string{"target", ".git", ".vcs"}
@@ -36,7 +33,7 @@ func (dt *DirectoryTree) Insert(name string, subtree DirectoryTree, path string)
 	}
 }
 
-func CreateDirectoryTree(path string, repo *repository.Repository) (*DirectoryTree, error) {
+func CreateDirectoryTree(path string, repo *Repository) (*DirectoryTree, error) {
 	tree := NewDirectoryTree()
 	entries, err := os.ReadDir(path)
 	if err != nil {
@@ -58,7 +55,7 @@ func CreateDirectoryTree(path string, repo *repository.Repository) (*DirectoryTr
 			}
 			tree.Insert(name, *subtree, fullPath)
 		} else {
-			fileBlobHash, err := file.GenerateHashedFile(fullPath, *repo)
+			fileBlobHash, err := GenerateHashedFile(fullPath, *repo)
 			if err != nil {
 				log.Printf("Error generating file blob hash for %s: %v", fullPath, err)
 				continue

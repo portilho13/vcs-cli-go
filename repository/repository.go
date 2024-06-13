@@ -13,18 +13,22 @@ var repoFolders = []string{
 }
 
 type Repository struct {
-	Name string
-	LocalPath string
+	Name       string
+	LocalPath  string
 	RemotePath string
-	Branch string
+	Branch     Branch
 }
 
-func (r *Repository) Init(Name string, LocalPath string, RemotePath string, Branch string) (*Repository) {
+func (r *Repository) Init(name, localPath, remotePath, branchName string) *Repository {
+	branch := Branch{
+		Name:    branchName,
+		DirTree: nil,
+	}
 	return &Repository{
-		Name: Name,
-		LocalPath: LocalPath,
-		RemotePath: RemotePath,
-		Branch: Branch,
+		Name:       name,
+		LocalPath:  localPath,
+		RemotePath: remotePath,
+		Branch:     branch,
 	}
 }
 
@@ -46,51 +50,44 @@ func RepoExists(path string) bool {
 }
 
 func SaveRepository(repo Repository) error {
-	path := filepath.Join(repo.LocalPath, ".vcs", "info.json")
-	data := map[string]interface{}{
-		"Name":    repo.Name,
-		"LocalPath":     repo.LocalPath,
-		"RemotePath": repo.RemotePath,
-		"Branch":  repo.Branch,
-	}
+    path := filepath.Join(repo.LocalPath, ".vcs", "info.json")
 
-	// Convert the map to a JSON byte slice
-	jsonData, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		fmt.Println("Error marshalling to JSON:", err)
-		return err
-	}
+    // Convert the Repository struct to a JSON byte slice
+    jsonData, err := json.MarshalIndent(repo, "", "  ")
+    if err != nil {
+        fmt.Println("Error marshalling to JSON:", err)
+        return err
+    }
 
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
+    file, err := os.Create(path)
+    if err != nil {
+        return err
+    }
+    defer file.Close()
 
-	defer file.Close()
-
-	_, err = file.Write(jsonData)
-	if err != nil {
-		return err
-	}
-	return nil
+    _, err = file.Write(jsonData)
+    if err != nil {
+        return err
+    }
+    return nil
 }
 
+
 func LoadRepository(path string) (*Repository, error) {
-	var repo Repository
-	path = filepath.Join(path, ".vcs", "info.json")
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
+    var repo Repository
+    path = filepath.Join(path, ".vcs", "info.json")
+    file, err := os.Open(path)
+    if err != nil {
+        return nil, err
+    }
+    defer file.Close()
 
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&repo)
-	if err != nil {
-		return nil, err
-	}
-	return &repo, nil
+    decoder := json.NewDecoder(file)
+    err = decoder.Decode(&repo)
+    if err != nil {
+        return nil, err
+    }
+    return &repo, nil
 }
 
 func CheckRepository(path string) bool {

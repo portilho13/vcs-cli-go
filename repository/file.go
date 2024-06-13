@@ -1,4 +1,4 @@
-package file
+package repository
 
 import (
 	"crypto/sha256"
@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-
-	"github.com/portilho13/vcs-cli-go/repository"
 )
 
 // ConvertToBin reads the file at filePath and converts its content to a binary string representation.
@@ -43,7 +41,7 @@ func GenerateHash256(content string) (string, error) {
 
 // GenerateHashedFile generates a binary representation of the file at filePath,
 // hashes the content, and stores it in the repository's .vcs/objects directory.
-func GenerateHashedFile(filePath string, repo repository.Repository) (string, error) {
+func GenerateHashedFile(filePath string, repo Repository) (string, error) {
 	content, err := ConvertToBin(filePath)
 	if err != nil {
 		return "", err
