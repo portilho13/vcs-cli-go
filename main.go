@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/portilho13/vcs-cli-go/args"
-	"github.com/portilho13/vcs-cli-go/cloud"
 	"github.com/portilho13/vcs-cli-go/helpers"
 	"github.com/portilho13/vcs-cli-go/repository"
 )
@@ -107,10 +106,26 @@ func main() {
 				fmt.Println("Error: ", err)
 				return
 			}
-			err = cloud.Clone(path, link)
+			err = repository.Clone(path, link)
 			if err != nil {
 				fmt.Println("Error: ", err)
 				return
 			}
+		case "origin":
+			remotePath := commandArgs[1]
+			repo.RemotePath = remotePath
+			if repository.RepoExists(path) {
+				err = repository.SaveRepository(*repo)
+				if err != nil {
+					fmt.Println("Error: ", err)
+					return
+				}
+			}
+			ip := repository.GetIpClosestServer()
+			if ip == "" {
+				fmt.Println("Error: No server available")
+				return
+			}
+			fmt.Println("Server IP: ", ip)
 	}
 }

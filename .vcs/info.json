@@ -1,7 +1,7 @@
 {
   "Name": "vcs-cli-go",
   "LocalPath": "/Users/marioportilho/Desktop/Coding/vcs-cli-go",
-  "RemotePath": "test",
+  "RemotePath": "ola",
   "Branch": {
     "Name": "master",
     "DirTree": {
