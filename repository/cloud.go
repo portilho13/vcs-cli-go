@@ -1,16 +1,15 @@
 package repository
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 )
-
-var serverIpAdresses = []string{"127.0.0.1:8080", 
-                                "104.248.174.146:1234",
-                                }
 
 func Clone(filePath string, url string) error {
     // Create the file
@@ -73,38 +72,55 @@ func printProgress(downloaded, contentLength int64, start time.Time) {
     fmt.Printf("\rDownloading... %.2f%% (%.2f KB/s)", percent, speed)
 }
 
-func GetIpClosestServer() string {
-    var responseTime []float64
-
-    for _, ip := range serverIpAdresses {
-        start := time.Now()
-        err := GetServerStatus(ip)
-        end := time.Since(start).Seconds()
-        responseTime = append(responseTime, end)
-        fmt.Println("Response time: ", end, " seconds for server: ", ip)
-        if err != nil {
-            fmt.Println("Server is down: ", ip, err)
-            return ""
-        }
-
-    }
-    ip := serverIpAdresses[0]
-    lowestTime := responseTime[0]
-    for i, time := range responseTime {
-        if time < lowestTime {
-            lowestTime = time
-            ip = serverIpAdresses[i]
-        }
-    }
-    return ip
-}
-
 func GetServerStatus(ip string) error {
-    ip = "http://" + ip + "/status"
-    fmt.Println("Checking server status: ", ip)
     _, err := http.Get(ip)
     if err != nil {
         return err
     }
     return nil
+}
+
+func UploadFile(filePath string, url string) error {
+	// Open the .zlib file
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+    body := &bytes.Buffer{}
+    writer := multipart.NewWriter(body)
+    part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
+    io.Copy(part, file)
+    writer.Close()
+
+	// Create a new HTTP POST request
+	req, err := http.NewRequest(http.MethodPost, url, body)
+    req.Header.Add("Content-Type", writer.FormDataContentType())
+	if err != nil {
+		return err
+	}
+
+	// Create a HTTP client
+	client := http.Client{}
+
+	// Send the request
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		// Read the response body for error details
+		var responseBody []byte
+		_, err := resp.Body.Read(responseBody)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		return fmt.Errorf("server returned status %d: %s", resp.StatusCode, responseBody)
+	}
+    
+	return nil
 }

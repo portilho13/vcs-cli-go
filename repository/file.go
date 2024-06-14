@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"compress/zlib"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -70,4 +71,64 @@ func GenerateHashedFile(filePath string, repo Repository) (string, error) {
 	}
 
 	return hash, nil
+}
+
+func CompressFolder(sourceDir, targetDir string) error {
+
+	outFile, err := os.Create(targetDir)
+	if err != nil {
+		return err
+	}
+	
+	defer outFile.Close()
+
+	zw := zlib.NewWriter(outFile)
+
+	defer zw.Close()
+
+
+	err = filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		inFile, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		defer inFile.Close()
+
+		relativePath, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+
+		_, err = zw.Write([]byte(relativePath + "\n"))
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(zw, inFile)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	err = zw.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

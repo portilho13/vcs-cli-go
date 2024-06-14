@@ -113,6 +113,13 @@ func main() {
 			}
 		case "origin":
 			remotePath := commandArgs[1]
+
+			err = repository.GetServerStatus(remotePath)
+			if err != nil {
+				fmt.Println("Error: ", err)
+				return
+			}
+
 			repo.RemotePath = remotePath
 			if repository.RepoExists(path) {
 				err = repository.SaveRepository(*repo)
@@ -121,11 +128,30 @@ func main() {
 					return
 				}
 			}
-			ip := repository.GetIpClosestServer()
-			if ip == "" {
-				fmt.Println("Error: No server available")
+		case "push":
+			localPath, err := helpers.GetLocalPath()
+			if err != nil {
+				fmt.Println("Error: ", err)
 				return
 			}
-			fmt.Println("Server IP: ", ip)
+			sourceDir := localPath + "/.vcs"
+			targetFile := localPath + repo.Name + ".zlib"
+		
+			err = repository.CompressFolder(sourceDir, targetFile)
+			if err != nil {
+				fmt.Println("Error compressing folder:", err)
+			} else {
+				fmt.Println("Folder compressed successfully!")
+			}
+
+			err = repository.UploadFile(targetFile, repo.RemotePath)
+			if err != nil {
+				fmt.Println("Error uploading file:", err)
+			} else {
+				fmt.Println("File uploaded successfully!")
+			}
+		default:
+			fmt.Println("Invalid command")
+
 	}
 }
