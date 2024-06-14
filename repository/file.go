@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"archive/tar"
 	"compress/zlib"
 	"crypto/sha256"
 	"fmt"
@@ -73,62 +74,56 @@ func GenerateHashedFile(filePath string, repo Repository) (string, error) {
 	return hash, nil
 }
 
-func CompressFolder(sourceDir, targetDir string) error {
-
-	outFile, err := os.Create(targetDir)
+func CompressFolder(source, destination string) error {
+	// Create the destination file
+	destFile, err := os.Create(destination)
 	if err != nil {
 		return err
 	}
-	
-	defer outFile.Close()
+	defer destFile.Close()
 
-	zw := zlib.NewWriter(outFile)
+	// Create a zlib writer
+	zlibWriter := zlib.NewWriter(destFile)
+	defer zlibWriter.Close()
 
-	defer zw.Close()
+	// Create a tar writer
+	tarWriter := tar.NewWriter(zlibWriter)
+	defer tarWriter.Close()
 
-
-	err = filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+	// Walk through the source directory and add files to the tar writer
+	return filepath.Walk(source, func(file string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if info.IsDir() {
-			return nil
-		}
-
-		inFile, err := os.Open(path)
+		// Create the tar header
+		header, err := tar.FileInfoHeader(fi, file)
 		if err != nil {
 			return err
 		}
 
-		defer inFile.Close()
+		header.Name = filepath.ToSlash(file[len(source):])
 
-		relativePath, err := filepath.Rel(sourceDir, path)
-		if err != nil {
+		// Write the header
+		if err := tarWriter.WriteHeader(header); err != nil {
 			return err
 		}
 
-		_, err = zw.Write([]byte(relativePath + "\n"))
-		if err != nil {
-			return err
-		}
+		// If it's a directory, we don't need to write any file data
+		if fi.Mode().IsRegular() {
+			// Open the file
+			f, err := os.Open(file)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
 
-		_, err = io.Copy(zw, inFile)
-		if err != nil {
-			return err
+			// Copy the file data to the tar writer
+			if _, err := io.Copy(tarWriter, f); err != nil {
+				return err
+			}
 		}
 
 		return nil
 	})
-
-	if err != nil {
-		return err
-	}
-
-	err = zw.Flush()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
