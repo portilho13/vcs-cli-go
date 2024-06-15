@@ -2,136 +2,22 @@
   "Name": "vcs-cli-go",
   "LocalPath": "/Users/marioportilho/Desktop/Coding/vcs-cli-go",
   "RemotePath": "http://127.0.0.1:8080/upload",
-  "Branch": {
-    "Name": "master",
-    "DirTree": {
-      "File": null,
-      "Directory": {
-        "args": {
-          "Tree": {
-            "File": null,
-            "Directory": {
-              "args.go": {
-                "Tree": {
-                  "File": "9ab1a9560ebbe523c34603b6a2a5048f639991c09b9afcaf065cf6b4cfa15ef5",
-                  "Directory": null
-                },
-                "Path": "args/args.go"
-              }
-            }
-          },
-          "Path": "args"
-        },
-        "cloud": {
-          "Tree": {
-            "File": null,
-            "Directory": {
-              "cloud.go": {
-                "Tree": {
-                  "File": "befb78b45abdc0b853f7bbee3782704ce12e2dc7716e73c3cfe9faddce3df931",
-                  "Directory": null
-                },
-                "Path": "cloud/cloud.go"
-              }
-            }
-          },
-          "Path": "cloud"
-        },
-        "go.mod": {
-          "Tree": {
-            "File": "7ab9597743ce8c2b123e4545ac9e158fde769532ae273c744551ff19e48dd48b",
-            "Directory": null
-          },
-          "Path": "go.mod"
-        },
-        "helpers": {
-          "Tree": {
-            "File": null,
-            "Directory": {
-              "helpers.go": {
-                "Tree": {
-                  "File": "3b909fb99c5d30aab71fda5954845af8a3eff4ca05e8950c9cc5ac8cccc4259a",
-                  "Directory": null
-                },
-                "Path": "helpers/helpers.go"
-              }
-            }
-          },
-          "Path": "helpers"
-        },
-        "main.go": {
-          "Tree": {
-            "File": "4c78d5e3c5292db2fe92fcbf9cd799dd5141b389a6960f24a55cfa78986029af",
-            "Directory": null
-          },
-          "Path": "main.go"
-        },
-        "repository": {
-          "Tree": {
-            "File": null,
-            "Directory": {
-              "branch.go": {
-                "Tree": {
-                  "File": "ebb3cc137e624fedcc47729d3aa99cc5437167acc167b3ab04a3087842fbcbf3",
-                  "Directory": null
-                },
-                "Path": "repository/branch.go"
-              },
-              "file.go": {
-                "Tree": {
-                  "File": "d54d21775aa317c04d948de5b4c6804f6315d2f7cdb4e1da1d4e47d26136dab8",
-                  "Directory": null
-                },
-                "Path": "repository/file.go"
-              },
-              "repository.go": {
-                "Tree": {
-                  "File": "0c87e58d67f2349b7d70ecaaff2c6932111eced26335ff0084665d533c8793f4",
-                  "Directory": null
-                },
-                "Path": "repository/repository.go"
-              },
-              "tree.go": {
-                "Tree": {
-                  "File": "ffba13e751d03c3dbd7f8307bc8860d6295695db09cb627e8476e9d2e125ca09",
-                  "Directory": null
-                },
-                "Path": "repository/tree.go"
-              }
-            }
-          },
-          "Path": "repository"
-        },
-        "test.txt": {
-          "Tree": {
-            "File": "5e55982e9c9224e9150b157005f268945b0bf1f484ab395ba3ece37033be5d7d",
-            "Directory": null
-          },
-          "Path": "test.txt"
-        },
-        "teste": {
-          "Tree": {
-            "File": null,
-            "Directory": {
-              "teste.c": {
-                "Tree": {
-                  "File": "eb91347802d07323a693e16c7cc69772193f3d983bb0185ca7147eb444f77bed",
-                  "Directory": null
-                },
-                "Path": "teste/teste.c"
-              }
-            }
-          },
-          "Path": "teste"
-        },
-        "teste.c": {
-          "Tree": {
-            "File": "eb91347802d07323a693e16c7cc69772193f3d983bb0185ca7147eb444f77bed",
-            "Directory": null
-          },
-          "Path": "teste/teste.c"
+  "CurrentBranch": "master",
+  "Branch": [
+    {
+      "Name": "master",
+      "DirTree": {
+        "File": null,
+        "Directory": {
+          "teste.c": {
+            "Tree": {
+              "File": "eb91347802d07323a693e16c7cc69772193f3d983bb0185ca7147eb444f77bed",
+              "Directory": null
+            },
+            "Path": "teste/teste.c"
+          }
         }
       }
     }
-  }
+  ]
 }

@@ -16,19 +16,23 @@ type Repository struct {
 	Name       string
 	LocalPath  string
 	RemotePath string
-	Branch     Branch
+    CurrentBranch string
+	Branch     []Branch
 }
 
 func (r *Repository) Init(name, localPath, remotePath, branchName string) *Repository {
+    var branches []Branch
 	branch := Branch{
 		Name:    branchName,
 		DirTree: nil,
 	}
+    branches = append(branches, branch)
 	return &Repository{
 		Name:       name,
 		LocalPath:  localPath,
 		RemotePath: remotePath,
-		Branch:     branch,
+        CurrentBranch: branchName,
+		Branch:     branches,
 	}
 }
 

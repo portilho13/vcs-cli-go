@@ -61,13 +61,19 @@ func main() {
 		case "add":
 			path := commandArgs[1]
 			localPath, err := helpers.GetLocalPath()
+			var currentBranch repository.Branch
 			if err != nil {
 				fmt.Println("Error: ", err)
 				return
 			}
 			if repository.RepoExists(localPath) {
+				currentBranch, err = repository.GetCurrentBranch(*repo)
+				if err != nil {
+					fmt.Println("Error: ", err)
+					return
+				}
 				var dirTree *repository.DirectoryTree
-				if repo.Branch.DirTree == nil {
+				if currentBranch.DirTree == nil {
 					dirTree, err = repository.CreateDirectoryTree(path, repo)
 					if err != nil {
 						fmt.Println("Error: ", err)
@@ -75,15 +81,15 @@ func main() {
 					}
 				} else {
 					fmt.Println("Updating directory tree")
-					dirTree, err = repository.UpdateDirectoryTree(path, repo, repo.Branch.DirTree)
+					dirTree, err = repository.UpdateDirectoryTree(path, repo, currentBranch.DirTree)
 					if err != nil {
 						fmt.Println("Error: ", err)
 						return
 					}
 				}
 
-				repo.Branch.DirTree = dirTree
-				repository.PrintDirectoryTree(repo.Branch.DirTree, 0)
+				currentBranch.DirTree = dirTree
+				repo, err = repository.UpdateRepoBranch(*repo, currentBranch)
 
 				err = repository.SaveRepository(*repo)
 				if err != nil {
@@ -135,7 +141,9 @@ func main() {
 				return
 			}
 			sourceDir := localPath + "/.vcs"
-			targetFile := localPath + repo.Name + ".zlib"
+			targetFile := repo.Name + ".zlib"
+
+			fmt.Println("Compressing folder...: ", targetFile)
 		
 			err = repository.CompressFolder(sourceDir, targetFile)
 			if err != nil {
@@ -152,6 +160,13 @@ func main() {
 			}
 		default:
 			fmt.Println("Invalid command")
-
+		
+	}
+	if repository.RepoExists(path) {
+		err = repository.SaveRepository(*repo)
+		if err != nil {
+			fmt.Println("Error: ", err)
+			return
+		}
 	}
 }
