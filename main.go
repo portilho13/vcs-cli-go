@@ -1,7 +1,11 @@
 package main
 
 import (
+	"compress/gzip"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -119,13 +123,6 @@ func main() {
 			}
 		case "origin":
 			remotePath := commandArgs[1]
-
-			err = repository.GetServerStatus(remotePath)
-			if err != nil {
-				fmt.Println("Error: ", err)
-				return
-			}
-
 			repo.RemotePath = remotePath
 			if repository.RepoExists(path) {
 				err = repository.SaveRepository(*repo)
@@ -169,4 +166,40 @@ func main() {
 			return
 		}
 	}
+}
+
+func DownloadFile(url string, filepath string) error {
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return fmt.Errorf("error creating file %s: %v", filepath, err)
+	}
+	defer out.Close()
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("error making GET request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check server response
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	// Create a gzip reader
+	gzipReader, err := gzip.NewReader(resp.Body)
+	if err != nil {
+		return fmt.Errorf("error creating gzip reader: %v", err)
+	}
+	defer gzipReader.Close()
+
+	// Write the decompressed response to the file
+	_, err = io.Copy(out, gzipReader)
+	if err != nil {
+		return fmt.Errorf("error writing response to file: %v", err)
+	}
+
+	return nil
 }
