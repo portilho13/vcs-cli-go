@@ -94,18 +94,22 @@ func main() {
 
 				currentBranch.DirTree = dirTree
 				repo, err = repository.UpdateRepoBranch(*repo, currentBranch)
-
+				if err != nil {
+					fmt.Println("Error: ", err)
+					return
+				}
+				
 				err = repository.SaveRepository(*repo)
 				if err != nil {
 					fmt.Println("Error: ", err)
 					return
 				}
 			}
-		case "comment":
+		case "commit":
 			if commandArgs[1] == "-m" {
 				trimmed := strings.TrimSpace(commandArgs[2])
-				comment = &trimmed
-				fmt.Println("Comment: ", *comment)
+				commit := trimmed
+				fmt.Println("Comment: ", commit)
 
 			}
 		case "clone":

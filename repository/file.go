@@ -12,7 +12,6 @@ import (
 	"strings"
 )
 
-// ConvertToBin reads the file at filePath and converts its content to a binary string representation.
 func ConvertToBin(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -74,28 +73,24 @@ func GenerateHashedFile(filePath string, repo Repository) (string, error) {
 }
 
 func CompressFolder(source, destination string) error {
-	// Create the destination file
+
 	destFile, err := os.Create(destination)
 	if err != nil {
 		return err
 	}
 	defer destFile.Close()
 
-	// Create a zlib writer
 	zlibWriter := zlib.NewWriter(destFile)
 	defer zlibWriter.Close()
 
-	// Create a tar writer
 	tarWriter := tar.NewWriter(zlibWriter)
 	defer tarWriter.Close()
 
-	// Walk through the source directory and add files to the tar writer
 	return filepath.Walk(source, func(file string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		// Create the tar header
 		header, err := tar.FileInfoHeader(fi, file)
 		if err != nil {
 			return err
@@ -103,21 +98,18 @@ func CompressFolder(source, destination string) error {
 
 		header.Name = filepath.ToSlash(file[len(source):])
 
-		// Write the header
 		if err := tarWriter.WriteHeader(header); err != nil {
 			return err
 		}
 
-		// If it's a directory, we don't need to write any file data
 		if fi.Mode().IsRegular() {
-			// Open the file
+
 			f, err := os.Open(file)
 			if err != nil {
 				return err
 			}
 			defer f.Close()
 
-			// Copy the file data to the tar writer
 			if _, err := io.Copy(tarWriter, f); err != nil {
 				return err
 			}
@@ -128,21 +120,20 @@ func CompressFolder(source, destination string) error {
 }
 
 func DecompressZlibFile(inputPath, outputDir string) error {
-	// Open the compressed file
+
 	inFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
 	}
 	defer inFile.Close()
 
-	// Create a zlib reader
+
 	zlibReader, err := zlib.NewReader(inFile)
 	if err != nil {
 		return err
 	}
 	defer zlibReader.Close()
 
-	// Create a tar reader
 	tarReader := tar.NewReader(zlibReader)
 
 	outputDir = strings.TrimSuffix(outputDir, filepath.Ext(outputDir))
@@ -151,24 +142,19 @@ func DecompressZlibFile(inputPath, outputDir string) error {
 
 	outputDir = outputDir + "/.vcs"
 
-	// Ensure the destination directory exists
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return err
 	}
 
-	// Extract files from the tar archive
 	for {
 		header, err := tarReader.Next()
 		if err == io.EOF {
-			break // End of archive
+			break
 		}
 		if err != nil {
 			return err
 		}
 
-		// Remove the .zip extension from the header name
-
-		// Determine the file path
 		filePath := filepath.Join(outputDir, header.Name)
 
 		switch header.Typeflag {
@@ -223,7 +209,6 @@ func GetFileContent(fileName string, localPath string) (string, error) {
 }
 
 func ConvertFromBin(binaryString string) (string, error) {
-    // Split the binary string into individual binary representations of bytes
     binaryBytes := strings.Fields(binaryString)
 
     var content []byte
@@ -232,17 +217,14 @@ func ConvertFromBin(binaryString string) (string, error) {
             return "", fmt.Errorf("invalid binary string format: %s", binByte)
         }
 
-        // Parse binary string to integer
         intVal, err := strconv.ParseInt(binByte, 2, 64)
         if err != nil {
             return "", fmt.Errorf("error parsing binary string: %v", err)
         }
 
-        // Append byte value to content
         content = append(content, byte(intVal))
     }
 
-    // Convert byte slice to string
     return string(content), nil
 }
 

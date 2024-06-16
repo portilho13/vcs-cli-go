@@ -42,7 +42,6 @@ func CreateDirectoryTree(path string, repo *Repository) (*DirectoryTree, error) 
     }
 
     if !info.IsDir() {
-        // The path is a file, process it directly
         fileBlobHash, err := GenerateHashedFile(path, *repo)
         if err != nil {
             log.Printf("Error generating file blob hash for %s: %v", path, err)
@@ -90,7 +89,6 @@ func UpdateDirectoryTree(path string, repo *Repository, tree *DirectoryTree) (*D
     }
 
     if !info.IsDir() {
-        // The path is a file, process it directly
         fileBlobHash, err := GenerateHashedFile(path, *repo)
         if err != nil {
             log.Printf("Error generating file blob hash for %s: %v", path, err)
