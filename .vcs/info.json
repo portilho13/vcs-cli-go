@@ -1,6 +1,6 @@
 {
-  "Name": "vcs-cli-go",
-  "LocalPath": "/Users/marioportilho/Desktop/Coding/vcs-cli-go",
+  "Name": "D:\\Coding\\vcs-cli-go",
+  "LocalPath": "D:\\Coding\\vcs-cli-go",
   "RemotePath": "http://127.0.0.1:8080/vcs-cli-go.vcs",
   "CurrentBranch": "master",
   "Branch": [
@@ -11,10 +11,10 @@
         "Directory": {
           "teste.c": {
             "Tree": {
-              "File": "eb91347802d07323a693e16c7cc69772193f3d983bb0185ca7147eb444f77bed",
+              "File": "9b1bcc85c9574a8b2f81e5d9a3011a88d791944a37e82ef0491cac962f5603eb",
               "Directory": null
             },
-            "Path": "teste/teste.c"
+            "Path": "teste\\teste.c"
           }
         }
       }

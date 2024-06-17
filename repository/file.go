@@ -127,7 +127,6 @@ func DecompressZlibFile(inputPath, outputDir string) error {
 	}
 	defer inFile.Close()
 
-
 	zlibReader, err := zlib.NewReader(inFile)
 	if err != nil {
 		return err
@@ -209,29 +208,24 @@ func GetFileContent(fileName string, localPath string) (string, error) {
 }
 
 func ConvertFromBin(binaryString string) (string, error) {
-    binaryBytes := strings.Fields(binaryString)
+	binaryBytes := strings.Fields(binaryString)
 
-    var content []byte
-    for _, binByte := range binaryBytes {
-        if len(binByte) != 8 {
-            return "", fmt.Errorf("invalid binary string format: %s", binByte)
-        }
+	var content []byte
+	for _, binByte := range binaryBytes {
+		if len(binByte) != 8 {
+			return "", fmt.Errorf("invalid binary string format: %s", binByte)
+		}
 
-        intVal, err := strconv.ParseInt(binByte, 2, 64)
-        if err != nil {
-            return "", fmt.Errorf("error parsing binary string: %v", err)
-        }
+		intVal, err := strconv.ParseInt(binByte, 2, 64)
+		if err != nil {
+			return "", fmt.Errorf("error parsing binary string: %v", err)
+		}
 
-        content = append(content, byte(intVal))
-    }
+		content = append(content, byte(intVal))
+	}
 
-    return string(content), nil
+	return string(content), nil
 }
-
-
-
-
-
 
 func mountDirectoryTree(repoPath string, basePath string, tree *DirectoryTree) error {
 	for _, subtree := range tree.Directory {
@@ -299,4 +293,32 @@ func MountRepositoryFolder(repo *Repository, localPath string) error {
 	}
 
 	return nil
+}
+
+func removeAllEntries(folderPath string) error {
+	return filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		dirToKeep := filepath.Join(folderPath, ".vcs")
+		fileToKeep := filepath.Join(folderPath, "vcs-cli-go.exe")
+
+		if path == dirToKeep || path == fileToKeep {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		if path == folderPath {
+			return nil
+		}
+
+		err = os.RemoveAll(path)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 }

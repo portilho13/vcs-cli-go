@@ -15,11 +15,6 @@ import (
 
 func Clone(filePath string, url string) error {
     
-    out, err := os.Create(filePath)
-    if err != nil {
-        return err
-    }
-    defer out.Close()
 
     resp, err := http.Get(url)
     if err != nil {
@@ -30,6 +25,12 @@ func Clone(filePath string, url string) error {
     if resp.StatusCode != http.StatusOK {
         return fmt.Errorf("bad status: %s", resp.Status)
     }
+
+    out, err := os.Create(filePath)
+    if err != nil {
+        return err
+    }
+    defer out.Close()
 
     _, err = io.Copy(out, resp.Body)
     if err != nil {
@@ -44,9 +45,6 @@ func Clone(filePath string, url string) error {
     if err != nil {
         return err
     }
-
-
-    
 
     return nil
 }
